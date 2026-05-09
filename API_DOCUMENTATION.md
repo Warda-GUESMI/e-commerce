@@ -1,10 +1,12 @@
-# 📚 Documentation API - Technova
+# Documentation API — Technova
+
+---
 
 ## Configuration
 
 ### Variables d'environnement
 
-Créez un fichier `.env` à la racine du projet :
+Créez un fichier `.env` à la racine du projet en vous basant sur `.env.example` :
 
 ```env
 VITE_API_URL=http://localhost:3000/api
@@ -13,50 +15,60 @@ VITE_STRIPE_PUBLIC_KEY=pk_test_...
 VITE_ENV=development
 ```
 
-## 🔗 Endpoints API
+---
 
-### Products
-```
-GET    /products              - Récupérer tous les produits
-GET    /products/:id          - Récupérer un produit
-GET    /products/search?q=    - Rechercher des produits
-GET    /products/category/:id - Produits par catégorie
-```
+## Endpoints
 
-### Authentication
+### Produits
+
 ```
-POST   /auth/login            - Connexion
-POST   /auth/register         - Inscription
-POST   /auth/logout           - Déconnexion
-POST   /auth/refresh          - Rafraîchir le token
+GET    /products                  Récupérer tous les produits
+GET    /products/:id              Récupérer un produit par identifiant
+GET    /products/search?q=        Rechercher des produits
+GET    /products/category/:id     Filtrer par catégorie
 ```
 
-### Orders
+### Authentification
+
 ```
-POST   /orders                - Créer une commande
-GET    /orders/:id            - Détails de la commande
-GET    /orders/user/:userId   - Commandes de l'utilisateur
-PATCH  /orders/:id            - Modifier le statut
+POST   /auth/login                Connexion utilisateur
+POST   /auth/register             Inscription
+POST   /auth/logout               Déconnexion
+POST   /auth/refresh              Rafraîchir le token JWT
 ```
 
-### User
+### Commandes
+
 ```
-GET    /user/profile          - Profil utilisateur
-PUT    /user/profile          - Mettre à jour le profil
-GET    /user/addresses        - Adresses de livraison
-POST   /user/addresses        - Ajouter une adresse
+POST   /orders                    Créer une commande
+GET    /orders/:id                Détails d'une commande
+GET    /orders/user/:userId       Commandes d'un utilisateur
+PATCH  /orders/:id                Modifier le statut d'une commande
 ```
 
-### Payments
+### Utilisateur
+
 ```
-POST   /payments/intent       - Créer une intention de paiement
-POST   /payments/validate     - Valider un paiement
-GET    /payments/:id          - Statut du paiement
+GET    /user/profile              Récupérer le profil
+PUT    /user/profile              Mettre à jour le profil
+GET    /user/addresses            Lister les adresses de livraison
+POST   /user/addresses            Ajouter une adresse
 ```
 
-## 💻 Utilisation dans les composants
+### Paiements
 
-### Avec le hook useApi
+```
+POST   /payments/intent           Créer une intention de paiement
+POST   /payments/validate         Valider un paiement
+GET    /payments/:id              Consulter le statut d'un paiement
+```
+
+---
+
+## Utilisation dans les composants
+
+### Hook `useApi`
+
 ```typescript
 import { useApi } from '@/hooks/useApi';
 
@@ -78,7 +90,8 @@ export function MyComponent() {
 }
 ```
 
-### Avec le service api
+### Service `api`
+
 ```typescript
 import { productsApi } from '@/services/api';
 
@@ -86,33 +99,39 @@ const products = await productsApi.getAll();
 const search = await productsApi.search('laptop');
 ```
 
-### Avec le mock API (développement local)
+### Mock API (développement local)
+
 ```typescript
 import { mockApi } from '@/services/mockApi';
 
 const products = await mockApi.products.getAll();
 ```
 
-## 🔐 Authentification
+---
 
-Les tokens JWT sont stockés automatiquement dans le localStorage par le store Zustand.
+## Authentification
 
-Format du header :
+Les tokens JWT sont gérés automatiquement par le store Zustand et persistés dans le localStorage. Chaque requête authentifiée doit inclure le header suivant :
+
 ```
 Authorization: Bearer <token>
 ```
 
-## 📦 Structure des réponses
+---
+
+## Structure des réponses
 
 ### Succès
+
 ```json
 {
   "success": true,
-  "data": {...}
+  "data": {}
 }
 ```
 
 ### Erreur
+
 ```json
 {
   "success": false,
@@ -120,23 +139,27 @@ Authorization: Bearer <token>
 }
 ```
 
-## 🛠️ Intégration Backend
+---
 
-Pour intégrer un vrai backend :
+## Intégration backend
 
-1. Remplacez `VITE_API_URL` dans `.env`
-2. Assurez-vous que le backend implémente les endpoints
-3. Les types TypeScript sont déjà prêts dans `useStore.ts`
+Pour connecter un backend réel :
 
-## 🧪 Tester les API
+1. Renseignez `VITE_API_URL` dans le fichier `.env`
+2. Assurez-vous que le backend expose les endpoints décrits ci-dessus
+3. Les types TypeScript correspondants sont définis dans `useStore.ts`
 
-Utilisez Postman ou cURL :
+---
+
+## Tests des endpoints
+
+Avec cURL :
 
 ```bash
-# Récupérer les produits
+# Récupérer tous les produits
 curl http://localhost:3000/api/products
 
-# Rechercher
+# Rechercher un produit
 curl "http://localhost:3000/api/products/search?q=laptop"
 
 # Créer une commande
@@ -145,8 +168,12 @@ curl -X POST http://localhost:3000/api/orders \
   -d '{"userId":"user_1","items":[],"total":0}'
 ```
 
-## 📊 Performance
+Avec **Postman**, importez les endpoints directement depuis cette documentation.
 
-- Timeout par défaut: 10 secondes
-- Cache automatique avec persist (Zustand)
-- Gestion d'erreurs centralisée
+---
+
+## Performance et fiabilité
+
+- Timeout par défaut : 10 secondes (configurable via `VITE_API_TIMEOUT`)
+- Cache automatique avec persistance via Zustand
+- Gestion d'erreurs centralisée au niveau du hook `useApi`
